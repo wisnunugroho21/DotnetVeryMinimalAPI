@@ -1,18 +1,19 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using VeryMinimalAPI.Common.API;
+using VeryMinimalAPI.Common.API.Result;
 using VeryMinimalAPI.Features.Services;
 
 namespace VeryMinimalAPI.Features.Endpoints.Todo;
 
 public class GetTodo : IEndpoint
 {
-    public record Request(int Id);
+    public record Request(long Id);
 
-    public record Response(Data.Types.Todo? Result);
+    public record Response(DataResult<Data.Types.Todo?> Result);
 
     public static void Map(IEndpointRouteBuilder app) => app
-        .MapGet("/{Id:int}", Handle)
+        .MapGet("/{Id:long}", Handle)
         .WithName(nameof(GetTodo))
         .WithSummary("Create a new Todo");
 

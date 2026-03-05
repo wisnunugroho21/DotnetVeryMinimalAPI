@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using VeryMinimalAPI.Common.API.Result;
+using VeryMinimalAPI.Common.Query;
 using VeryMinimalAPI.Data;
 using VeryMinimalAPI.Data.Types;
 
@@ -7,32 +9,30 @@ namespace VeryMinimalAPI.Common.Services;
 public class CrudService<T>(AppDbContext db)
     where T : Entity
 {
-    public virtual async Task<IEnumerable<T>> GetAll(CancellationToken cancellationToken)
+    public virtual async Task<ListDataResult<T>> GetAll(int skip, int take, List<Filter>? filters,
+        List<Sort>? sorts, CancellationToken cancellationToken)
     {
-        try
-        {
-            return await db.Set<T>().AsNoTracking().ToListAsync(cancellationToken);
-        }
-        catch (Exception)
-        {
-            return [];
-        }
+        return await db.Set<T>().AsNoTracking()
+            .ToListDataResultAsync(skip, take, filters, sorts, cancellationToken);
     }
 
-    public virtual async Task<T?> Get(int id, CancellationToken cancellationToken)
+    public virtual async Task<DataResult<T?>> Get(long id, CancellationToken cancellationToken)
     {
         try
         {
             var data = await db.Set<T>().AsNoTracking().FirstAsync(x => x.Id == id, cancellationToken);
-            return data;
+            return new DataResult<T?>(data);
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            return null;
+            return new DataResult<T?>(null)
+            {
+                Errors = [e.Message]
+            };
         }
     }
 
-    public virtual async Task<IEnumerable<string>> Create(T data, CancellationToken cancellationToken)
+    public virtual async Task<ProcessResult> Create(T data, CancellationToken cancellationToken)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         try
@@ -42,16 +42,16 @@ public class CrudService<T>(AppDbContext db)
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
-            return [];
+            return new ProcessResult(true, []);
         }
         catch (Exception e)
         {
             await transaction.RollbackAsync(cancellationToken);
-            return [e.Message];
+            return new ProcessResult(false, [e.Message]);
         }
     }
     
-    public virtual async Task<IEnumerable<string>> CreateBatch(IEnumerable<T> data, CancellationToken cancellationToken)
+    public virtual async Task<ProcessResult> CreateBatch(IEnumerable<T> data, CancellationToken cancellationToken)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         try
@@ -61,16 +61,16 @@ public class CrudService<T>(AppDbContext db)
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
-            return [];
+            return new ProcessResult(true, []);
         }
         catch (Exception e)
         {
             await transaction.RollbackAsync(cancellationToken);
-            return [e.Message];
+            return new ProcessResult(false, [e.Message]);
         }
     }
     
-    public virtual async Task<IEnumerable<string>> Update(T inputData, CancellationToken cancellationToken)
+    public virtual async Task<ProcessResult> Update(T inputData, CancellationToken cancellationToken)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         try
@@ -83,16 +83,16 @@ public class CrudService<T>(AppDbContext db)
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
-            return [];
+            return new ProcessResult(true, []);
         }
         catch (Exception e)
         {
             await transaction.RollbackAsync(cancellationToken);
-            return [e.Message];
+            return new ProcessResult(false, [e.Message]);
         }
     }
     
-    public virtual async Task<IEnumerable<string>> UpdateBatch(IEnumerable<T> inputDatas, CancellationToken cancellationToken)
+    public virtual async Task<ProcessResult> UpdateBatch(IEnumerable<T> inputDatas, CancellationToken cancellationToken)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         try
@@ -111,16 +111,16 @@ public class CrudService<T>(AppDbContext db)
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
-            return [];
+            return new ProcessResult(true, []);
         }
         catch (Exception e)
         {
             await transaction.RollbackAsync(cancellationToken);
-            return [e.Message];
+            return new ProcessResult(false, [e.Message]);
         }
     }
     
-    public virtual async Task<IEnumerable<string>> Delete(int id, CancellationToken cancellationToken)
+    public virtual async Task<ProcessResult> Delete(long id, CancellationToken cancellationToken)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         try
@@ -134,16 +134,16 @@ public class CrudService<T>(AppDbContext db)
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
-            return [];
+            return new ProcessResult(true, []);
         }
         catch (Exception e)
         {
             await transaction.RollbackAsync(cancellationToken);
-            return [e.Message];
+            return new ProcessResult(false, [e.Message]);
         }
     }
     
-    public virtual async Task<IEnumerable<string>> DeleteBatch(IEnumerable<int> ids, CancellationToken cancellationToken)
+    public virtual async Task<ProcessResult> DeleteBatch(IEnumerable<long> ids, CancellationToken cancellationToken)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         try
@@ -156,12 +156,12 @@ public class CrudService<T>(AppDbContext db)
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
-            return [];
+            return new ProcessResult(true, []);
         }
         catch (Exception e)
         {
             await transaction.RollbackAsync(cancellationToken);
-            return [e.Message];
+            return new ProcessResult(false, [e.Message]);
         }
     }
 }

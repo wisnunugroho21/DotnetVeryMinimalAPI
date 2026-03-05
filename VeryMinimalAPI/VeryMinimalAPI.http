@@ -1,11 +1,16 @@
-@DotnetTutorial2_HostAddress = http://localhost:5015
+@VeryMinimalAPI_HostAddress = http://localhost:5015
 
-GET {{DotnetTutorial2_HostAddress}}/todos/
+GET {{VeryMinimalAPI_HostAddress}}/todos/
 Accept: application/json
 
 ###
 
-POST {{DotnetTutorial2_HostAddress}}/todos/
+GET {{VeryMinimalAPI_HostAddress}}/todos?skip=0&take=1&filters=[{"field":"name","logic": "and", "constraints": [{"operator":"starts-with", "keyword":"Go"}]}]
+Accept: application/json
+
+###
+
+POST {{VeryMinimalAPI_HostAddress}}/todos/
 Accept: application/json
 Content-Type: application/json
 
@@ -18,7 +23,7 @@ Content-Type: application/json
 
 ###
 
-PUT {{DotnetTutorial2_HostAddress}}/todos/
+PUT {{VeryMinimalAPI_HostAddress}}/todos/
 Accept: application/json
 Content-Type: application/json
 
@@ -32,12 +37,12 @@ Content-Type: application/json
 
 ###
 
-GET {{DotnetTutorial2_HostAddress}}/todos/1
+GET {{VeryMinimalAPI_HostAddress}}/todos/1
 Accept: application/json
 
 ###
 
-DELETE {{DotnetTutorial2_HostAddress}}/todos/1
+DELETE {{VeryMinimalAPI_HostAddress}}/todos/1
 Accept: application/json
 
 ###

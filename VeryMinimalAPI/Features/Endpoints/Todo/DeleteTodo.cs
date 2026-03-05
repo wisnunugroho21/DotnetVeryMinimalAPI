@@ -1,18 +1,19 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using VeryMinimalAPI.Common.API;
+using VeryMinimalAPI.Common.API.Result;
 using VeryMinimalAPI.Features.Services;
 
 namespace VeryMinimalAPI.Features.Endpoints.Todo;
 
 public class DeleteTodo : IEndpoint
 {
-    public record Request(int Id);
+    public record Request(long Id);
 
-    public record Response(IEnumerable<string> Messages);
+    public record Response(ProcessResult Result);
 
     public static void Map(IEndpointRouteBuilder app) => app
-        .MapDelete("/{Id:int}", Handle)
+        .MapDelete("/{Id:long}", Handle)
         .WithName(nameof(DeleteTodo))
         .WithSummary("Delete a Todo");
 

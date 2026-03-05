@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using VeryMinimalAPI.Common.API;
+using VeryMinimalAPI.Common.API.Result;
 using VeryMinimalAPI.Features.Services;
 
 namespace VeryMinimalAPI.Features.Endpoints.Todo;
@@ -9,7 +10,7 @@ public class CreateTodo : IEndpoint
 {
     public record Request(Data.Types.Todo Todo);
 
-    public record Response(IEnumerable<string> Messages);
+    public record Response(ProcessResult Result);
 
     public static void Map(IEndpointRouteBuilder app) => app
         .MapPost("/", Handle)
