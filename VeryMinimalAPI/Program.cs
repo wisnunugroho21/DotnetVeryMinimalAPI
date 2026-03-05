@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using VeryMinimalAPI.Common.API;
 using VeryMinimalAPI.Common.Services;
 using VeryMinimalAPI.Data;
@@ -11,6 +12,7 @@ builder.Services.AddOpenApi();
 
 builder.AddDatabase();
 builder.AddApplicationService();
+builder.AddAuthentication();
 
 var app = builder.Build();
 
