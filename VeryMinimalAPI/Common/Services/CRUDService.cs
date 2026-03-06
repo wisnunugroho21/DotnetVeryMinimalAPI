@@ -56,12 +56,12 @@ public class CrudService<T>(AppDbContext db, ILogger<CrudService<T>> logger)
         }
     }
     
-    public virtual async Task<ProcessResult> CreateBatch(IEnumerable<T> data, CancellationToken cancellationToken)
+    public virtual async Task<ProcessResult> CreateBatch(IEnumerable<T> datas, CancellationToken cancellationToken)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         try
         {
-            await db.Set<T>().AddRangeAsync(data, cancellationToken);
+            await db.Set<T>().AddRangeAsync(datas, cancellationToken);
             
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
