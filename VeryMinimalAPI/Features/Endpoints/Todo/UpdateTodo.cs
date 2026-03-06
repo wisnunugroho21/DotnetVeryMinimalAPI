@@ -17,10 +17,12 @@ public class UpdateTodo : IEndpoint
         .WithName(nameof(UpdateTodo))
         .WithSummary("Create a new Todo");
 
-    private static async Task<Ok<Response>> Handle([FromBody] Request request, [FromServices] TodoService service,
+    private static async Task<Results<Ok<Response>, InternalServerError<Response>>> Handle([FromBody] Request request, [FromServices] TodoService service,
         CancellationToken cancellationToken)
     {
         var result = await service.Update(request.Todo, cancellationToken);
-        return TypedResults.Ok(new Response(result));
+        var response = new Response(result);
+
+        return result.IsSuccess ? TypedResults.Ok(response) : TypedResults.InternalServerError(response);
     }
 }

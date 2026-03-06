@@ -19,7 +19,7 @@ public class GetAllUser : IEndpoint
         .WithName(nameof(GetAllUser))
         .WithSummary("Create a new User");
 
-    private static async Task<Ok<Response>> Handle([AsParameters] Request request, [FromServices] UserService service,
+    private static async Task<Results<Ok<Response>, InternalServerError<Response>>> Handle([AsParameters] Request request, [FromServices] UserService service,
         CancellationToken cancellationToken)
     {
         var result = await service.GetAll(request.Skip, request.Take, 
@@ -30,6 +30,10 @@ public class GetAllUser : IEndpoint
                 !string.IsNullOrWhiteSpace(request.Sorts) ? request.Sorts : "[]"
             ) ?? [], 
             cancellationToken);
-        return TypedResults.Ok(new Response(result));
+        var response = new Response(result);
+        
+        return result.Errors is not null && result.Errors.Any()
+            ? TypedResults.Ok(response)
+            : TypedResults.InternalServerError(response);
     }
 }

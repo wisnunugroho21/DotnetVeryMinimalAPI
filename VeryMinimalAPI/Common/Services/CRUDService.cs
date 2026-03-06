@@ -9,8 +9,8 @@ namespace VeryMinimalAPI.Common.Services;
 public class CrudService<T>(AppDbContext db)
     where T : Entity
 {
-    public virtual async Task<ListDataResult<T>> GetAll(int skip, int take, List<Filter>? filters,
-        List<Sort>? sorts, CancellationToken cancellationToken)
+    public virtual async Task<ListDataResult<T>> GetAll(int skip, int take, List<Filter> filters,
+        List<Sort> sorts, CancellationToken cancellationToken)
     {
         return await db.Set<T>().AsNoTracking()
             .ToListDataResultAsync(skip, take, filters, sorts, cancellationToken);

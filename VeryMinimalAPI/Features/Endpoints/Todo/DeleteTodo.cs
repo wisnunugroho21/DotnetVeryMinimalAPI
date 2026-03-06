@@ -17,10 +17,12 @@ public class DeleteTodo : IEndpoint
         .WithName(nameof(DeleteTodo))
         .WithSummary("Delete a Todo");
 
-    private static async Task<Ok<Response>> Handle([AsParameters] Request request, [FromServices] TodoService service,
+    private static async Task<Results<Ok<Response>, InternalServerError<Response>>> Handle([AsParameters] Request request, [FromServices] TodoService service,
         CancellationToken cancellationToken)
     {
         var result = await service.Delete(request.Id, cancellationToken);
-        return TypedResults.Ok(new Response(result));
+        var response = new Response(result);
+
+        return result.IsSuccess ? TypedResults.Ok(response) : TypedResults.InternalServerError(response);
     }
 }

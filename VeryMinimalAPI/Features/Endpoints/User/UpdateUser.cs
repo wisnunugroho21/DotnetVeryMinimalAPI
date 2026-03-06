@@ -17,10 +17,12 @@ public class UpdateUser : IEndpoint
         .WithName(nameof(UpdateUser))
         .WithSummary("Create a new User");
 
-    private static async Task<Ok<Response>> Handle([FromBody] Request request, [FromServices] UserService service,
+    private static async Task<Results<Ok<Response>, InternalServerError<Response>>> Handle([FromBody] Request request, [FromServices] UserService service,
         CancellationToken cancellationToken)
     {
         var result = await service.Update(request.User, cancellationToken);
-        return TypedResults.Ok(new Response(result));
+        var response = new Response(result);
+
+        return result.IsSuccess ? TypedResults.Ok(response) : TypedResults.InternalServerError(response);
     }
 }
