@@ -1,0 +1,8 @@
+namespace VeryMinimalAPI.Common.Auth.Types;
+
+public class SecurityOptions
+{
+    public required string JwtKey { get; set; }
+    
+    public required string[] AllowedOrigin { get; set; }
+}

@@ -1,8 +1,11 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using VeryMinimalAPI.Common.Auth.Services;
+using VeryMinimalAPI.Common.Auth.Types;
 using VeryMinimalAPI.Data;
 using VeryMinimalAPI.Features.Services;
 
@@ -18,15 +21,25 @@ public static class ApplicationService
                 opt.UseSqlServer(builder.Configuration.GetConnectionString("LocalDB")));
         }
 
-        public void AddAuthentication()
+        public void AddSecurity()
         {
+            builder.Services.Configure<SecurityOptions>(builder.Configuration.GetSection("Security"));
+            builder.Services.AddHttpContextAccessor();
+
+            builder.Services.AddScoped<IAuthorizationHandler, TokenHandlerService<AppDbContext>>();
+            builder.Services.AddScoped<AuthService>();
+            builder.Services.AddScoped<ClaimService>();
+            
+            var provider = builder.Services.BuildServiceProvider();
+            var securityOptions = provider.GetRequiredService<IOptions<SecurityOptions>>();
+            
             builder.Services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(opt =>
                 {
                     opt.TokenValidationParameters = new TokenValidationParameters()
                     {
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"] ?? string.Empty)),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(securityOptions.Value.JwtKey)),
                         ValidateIssuer = false,
                         ValidateAudience = false,
                         ValidateLifetime = true,
@@ -35,10 +48,29 @@ public static class ApplicationService
                     };
                 });
 
-            builder.Services.AddAuthorization();
-            
-            builder.Services.AddScoped<AuthService>();
-            builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+            builder.Services.AddAuthorizationBuilder()
+                .AddDefaultPolicy("default", opt => opt.Requirements.Add(new TokenRequirement()));
+
+            builder.Services.AddCors(opt =>
+            {
+                opt.AddDefaultPolicy(dp =>
+                {
+                    dp.AllowAnyHeader()
+                        .AllowCredentials()
+                        .AllowAnyMethod()
+                        .WithExposedHeaders("Content-Disposition");
+
+                    if (securityOptions.Value.AllowedOrigin.Length > 0)
+                    {
+                        dp.WithOrigins(securityOptions.Value.AllowedOrigin);
+                    }
+
+                    else
+                    {
+                        dp.SetIsOriginAllowed(_ => true);
+                    }
+                });
+            });
         }
         
         public void AddApplicationService()

@@ -12,7 +12,7 @@ builder.Services.AddOpenApi();
 
 builder.AddDatabase();
 builder.AddApplicationService();
-builder.AddAuthentication();
+builder.AddSecurity();
 
 var app = builder.Build();
 

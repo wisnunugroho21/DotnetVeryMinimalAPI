@@ -1,12 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using VeryMinimalAPI.Common.API.Result;
+using VeryMinimalAPI.Common.Auth.Services;
 using VeryMinimalAPI.Common.Query;
 using VeryMinimalAPI.Data;
 using VeryMinimalAPI.Data.Types;
 
 namespace VeryMinimalAPI.Common.Services;
 
-public class CrudService<T>(AppDbContext db)
+public class CrudService<T>(AppDbContext db, ClaimService claim)
     where T : Entity
 {
     public virtual async Task<ListDataResult<T>> GetAll(int skip, int take, List<Filter> filters,

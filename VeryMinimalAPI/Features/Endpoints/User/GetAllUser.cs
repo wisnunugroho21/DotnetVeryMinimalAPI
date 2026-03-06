@@ -33,7 +33,7 @@ public class GetAllUser : IEndpoint
         var response = new Response(result);
         
         return result.Errors is not null && result.Errors.Any()
-            ? TypedResults.Ok(response)
-            : TypedResults.InternalServerError(response);
+            ? TypedResults.InternalServerError(response)
+            : TypedResults.Ok(response);
     }
 }
