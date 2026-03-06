@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Events;
 using VeryMinimalAPI.Common.Auth.Services;
 using VeryMinimalAPI.Common.Auth.Types;
 using VeryMinimalAPI.Data;
@@ -83,6 +85,17 @@ public static class ApplicationService
         {   
             builder.Services.AddScoped<TodoService>();
             builder.Services.AddScoped<UserService>();
+        }
+
+        public void AddSerilog()
+        {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .WriteTo.File("Log/log-.txt", rollingInterval: RollingInterval.Day, restrictedToMinimumLevel: LogEventLevel.Error)
+                .CreateLogger();
+            
+            builder.Services.AddSerilog();
         }
     }
 }

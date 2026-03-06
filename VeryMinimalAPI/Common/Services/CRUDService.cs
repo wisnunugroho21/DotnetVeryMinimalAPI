@@ -7,7 +7,7 @@ using VeryMinimalAPI.Data.Types;
 
 namespace VeryMinimalAPI.Common.Services;
 
-public class CrudService<T>(AppDbContext db, ClaimService claim)
+public class CrudService<T>(AppDbContext db, ClaimService claim, ILogger<CrudService<T>> logger)
     where T : Entity
 {
     public virtual async Task<ListDataResult<T>> GetAll(int skip, int take, List<Filter> filters,
@@ -26,6 +26,8 @@ public class CrudService<T>(AppDbContext db, ClaimService claim)
         }
         catch (Exception e)
         {
+            logger.LogError(e.Message, e);
+            
             return new DataResult<T?>(null)
             {
                 Errors = [e.Message]
@@ -48,6 +50,8 @@ public class CrudService<T>(AppDbContext db, ClaimService claim)
         catch (Exception e)
         {
             await transaction.RollbackAsync(cancellationToken);
+            logger.LogError(e.Message, e);
+            
             return new ProcessResult(false, [e.Message]);
         }
     }
@@ -67,6 +71,8 @@ public class CrudService<T>(AppDbContext db, ClaimService claim)
         catch (Exception e)
         {
             await transaction.RollbackAsync(cancellationToken);
+            logger.LogError(e.Message, e);
+            
             return new ProcessResult(false, [e.Message]);
         }
     }
@@ -89,6 +95,8 @@ public class CrudService<T>(AppDbContext db, ClaimService claim)
         catch (Exception e)
         {
             await transaction.RollbackAsync(cancellationToken);
+            logger.LogError(e.Message, e);
+            
             return new ProcessResult(false, [e.Message]);
         }
     }
@@ -117,6 +125,8 @@ public class CrudService<T>(AppDbContext db, ClaimService claim)
         catch (Exception e)
         {
             await transaction.RollbackAsync(cancellationToken);
+            logger.LogError(e.Message, e);
+            
             return new ProcessResult(false, [e.Message]);
         }
     }
@@ -140,6 +150,8 @@ public class CrudService<T>(AppDbContext db, ClaimService claim)
         catch (Exception e)
         {
             await transaction.RollbackAsync(cancellationToken);
+            logger.LogError(e.Message, e);
+            
             return new ProcessResult(false, [e.Message]);
         }
     }
@@ -162,6 +174,8 @@ public class CrudService<T>(AppDbContext db, ClaimService claim)
         catch (Exception e)
         {
             await transaction.RollbackAsync(cancellationToken);
+            logger.LogError(e.Message, e);
+            
             return new ProcessResult(false, [e.Message]);
         }
     }

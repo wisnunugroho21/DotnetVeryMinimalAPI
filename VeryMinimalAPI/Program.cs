@@ -13,6 +13,7 @@ builder.Services.AddOpenApi();
 builder.AddDatabase();
 builder.AddApplicationService();
 builder.AddSecurity();
+builder.AddSerilog();
 
 var app = builder.Build();
 
