@@ -15,13 +15,9 @@ public class TokenHandlerService<TContext>(TContext db, ClaimService claim)
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, TokenRequirement requirement)
     {
         if (await db.Users.AnyAsync(x => x.Username == claim.Name))
-        {
             context.Succeed(requirement);
-        }
 
         else
-        {
             context.Fail();
-        }
     }
 }

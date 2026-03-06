@@ -10,19 +10,22 @@ public class DeleteTodo : IEndpoint
 {
     public record Request(long Id);
 
-    public record Response(ProcessResult Result);
+    public record OkResponse(string Message);
+    
+    public record ServerErrorResponse(IEnumerable<string>? Messages);
 
     public static void Map(IEndpointRouteBuilder app) => app
         .MapDelete("/{Id:long}", Handle)
         .WithName(nameof(DeleteTodo))
         .WithSummary("Delete a Todo");
 
-    private static async Task<Results<Ok<Response>, InternalServerError<Response>>> Handle([AsParameters] Request request, [FromServices] TodoService service,
+    private static async Task<Results<Ok<OkResponse>, InternalServerError<ServerErrorResponse>>> Handle([AsParameters] Request request, [FromServices] TodoService service,
         CancellationToken cancellationToken)
     {
         var result = await service.Delete(request.Id, cancellationToken);
-        var response = new Response(result);
-
-        return result.IsSuccess ? TypedResults.Ok(response) : TypedResults.InternalServerError(response);
+        
+        return result.IsSuccess 
+            ? TypedResults.Ok(new OkResponse("Successfully deleted")) 
+            : TypedResults.InternalServerError(new ServerErrorResponse(result.Messages));
     }
 }

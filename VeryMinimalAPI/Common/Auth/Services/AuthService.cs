@@ -1,8 +1,10 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using VeryMinimalAPI.Common.API.Result;
 using VeryMinimalAPI.Common.Auth.Types;
 using VeryMinimalAPI.Data;
 using VeryMinimalAPI.Data.Types;
@@ -11,10 +13,21 @@ namespace VeryMinimalAPI.Common.Auth.Services;
 
 public class AuthService(IOptions<SecurityOptions> options, AppDbContext db)
 {
-    public async Task<string> Login(string username, string password, CancellationToken cancellationToken)
+    public async Task<AuthResult> Login(string username, string password, CancellationToken cancellationToken)
     {
-        var user = await db.Users.SingleOrDefaultAsync(x => x.Username == username && x.Password == password, cancellationToken);
-        return user is null ? string.Empty : GenerateJwtToken(user);
+        var user = await db.Users.SingleOrDefaultAsync(x => x.Username == username, cancellationToken);
+        
+        if (user == null)
+            return new AuthResult(false,string.Empty, ["username or password is incorrect"]);
+
+        var pwd = new PasswordHasher<User>();
+        var passwordVerificationResult = pwd.VerifyHashedPassword(user, user.Password, password);
+
+        if (passwordVerificationResult == PasswordVerificationResult.Failed)
+            return new AuthResult(false,string.Empty, ["username or password is incorrect"]);
+
+        var token = GenerateJwtToken(user);
+        return new AuthResult(true, token, null);
     }
 
     private string GenerateJwtToken(User user)

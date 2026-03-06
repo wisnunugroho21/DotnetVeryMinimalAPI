@@ -28,10 +28,8 @@ public static class QueryService
             var total = calcTotal ? await queryable.CountAsync(cancellationToken) : 0;
             queryable = sorts.Count > 0 ? queryable.Sort(sorts) : queryable.OrderBy(x => x.Id);
 
-            if (take > 0)
-            {
+            if (take > 0) 
                 queryable = queryable.Page(skip, take);
-            }
             
             return new ListDataResult<T>(await queryable.ToListAsync(cancellationToken), total);
         }
@@ -121,30 +119,22 @@ public static class QueryService
 
                 if (constraint.Keyword is not JArray v) 
                     continue;
-                    
+
                 if (currentPropertyType == typeof(int))
-                {
                     constraint.Keyword = v.Select(x => Convert.ChangeType(x, currentPropertyType))
                         .Cast<int>().ToArray();
-                }
-                            
+
                 else if (currentPropertyType == typeof(long))
-                {
                     constraint.Keyword = v.Select(x => Convert.ChangeType(x, currentPropertyType))
                         .Cast<long>().ToArray();
-                }
-                            
+
                 else if (currentPropertyType == typeof(short))
-                {
                     constraint.Keyword = v.Select(x => Convert.ChangeType(x, currentPropertyType))
                         .Cast<short>().ToArray();
-                }
-                            
+
                 else
-                {
                     constraint.Keyword = v.Select(x => Convert.ChangeType(x, currentPropertyType))
                         .Cast<int>().ToArray();
-                }
             }
             
         }

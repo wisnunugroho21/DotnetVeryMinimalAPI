@@ -7,7 +7,7 @@ using VeryMinimalAPI.Data.Types;
 
 namespace VeryMinimalAPI.Common.Services;
 
-public class CrudService<T>(AppDbContext db, ClaimService claim, ILogger<CrudService<T>> logger)
+public class CrudService<T>(AppDbContext db, ILogger<CrudService<T>> logger)
     where T : Entity
 {
     public virtual async Task<ListDataResult<T>> GetAll(int skip, int take, List<Filter> filters,

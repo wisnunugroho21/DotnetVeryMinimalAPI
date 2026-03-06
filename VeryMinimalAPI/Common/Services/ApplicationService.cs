@@ -69,14 +69,10 @@ public static class ApplicationService
                         .WithExposedHeaders("Content-Disposition");
 
                     if (securityOptions.Value.AllowedOrigin.Length > 0)
-                    {
                         dp.WithOrigins(securityOptions.Value.AllowedOrigin);
-                    }
 
                     else
-                    {
                         dp.SetIsOriginAllowed(_ => true);
-                    }
                 });
             });
         }

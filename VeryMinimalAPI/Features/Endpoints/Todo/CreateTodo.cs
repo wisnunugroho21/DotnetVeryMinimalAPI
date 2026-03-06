@@ -10,19 +10,22 @@ public class CreateTodo : IEndpoint
 {
     public record Request(Data.Types.Todo Todo);
 
-    public record Response(ProcessResult Result);
+    public record OkResponse(string Message);
+    
+    public record ServerErrorResponse(IEnumerable<string>? Messages);
 
     public static void Map(IEndpointRouteBuilder app) => app
         .MapPost("/", Handle)
         .WithName(nameof(CreateTodo))
         .WithSummary("Create a new Todo");
 
-    private static async Task<Results<Ok<Response>, InternalServerError<Response>>> Handle([FromBody] Request request, [FromServices] TodoService service,
+    private static async Task<Results<Ok<OkResponse>, InternalServerError<ServerErrorResponse>>> Handle([FromBody] Request request, [FromServices] TodoService service,
         CancellationToken cancellationToken)
     {
         var result = await service.Create(request.Todo, cancellationToken);
-        var response = new Response(result);
 
-        return result.IsSuccess ? TypedResults.Ok(response) : TypedResults.InternalServerError(response);
+        return result.IsSuccess 
+            ? TypedResults.Ok(new OkResponse("Successfully created")) 
+            : TypedResults.InternalServerError(new ServerErrorResponse(result.Messages));
     }
 }

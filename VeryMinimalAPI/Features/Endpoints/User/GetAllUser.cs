@@ -12,14 +12,16 @@ public class GetAllUser : IEndpoint
 {
     public record Request(int Skip = 0, int Take = 0, string Filters = "[]", string Sorts = "[]");
     
-    public record Response(ListDataResult<Data.Types.User> Result);
+    public record OkResponse(IEnumerable<Data.Types.User> Data, int Total);
+    
+    public record ServerErrorResponse(IEnumerable<string>? Messages);
 
     public static void Map(IEndpointRouteBuilder app) => app
         .MapGet("/", Handle)
         .WithName(nameof(GetAllUser))
         .WithSummary("Create a new User");
 
-    private static async Task<Results<Ok<Response>, InternalServerError<Response>>> Handle([AsParameters] Request request, [FromServices] UserService service,
+    private static async Task<Results<Ok<OkResponse>, InternalServerError<ServerErrorResponse>>> Handle([AsParameters] Request request, [FromServices] UserService service,
         CancellationToken cancellationToken)
     {
         var result = await service.GetAll(request.Skip, request.Take, 
@@ -30,10 +32,9 @@ public class GetAllUser : IEndpoint
                 !string.IsNullOrWhiteSpace(request.Sorts) ? request.Sorts : "[]"
             ) ?? [], 
             cancellationToken);
-        var response = new Response(result);
         
         return result.Errors is not null && result.Errors.Any()
-            ? TypedResults.InternalServerError(response)
-            : TypedResults.Ok(response);
+            ? TypedResults.InternalServerError(new ServerErrorResponse(result.Errors))
+            : TypedResults.Ok(new OkResponse(result.Data, result.Total));
     }
 }

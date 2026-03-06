@@ -5,7 +5,7 @@ using VeryMinimalAPI.Data.Types;
 
 namespace VeryMinimalAPI.Features.Services;
 
-public class TodoService(AppDbContext context, ClaimService claim, ILogger<TodoService> logger) : CrudService<Todo>(context, claim, logger)
+public class TodoService(AppDbContext context, ILogger<TodoService> logger) : CrudService<Todo>(context, logger)
 {
     
 }

@@ -10,19 +10,22 @@ public class UpdateUser : IEndpoint
 {
     public record Request(Data.Types.User User);
 
-    public record Response(ProcessResult Result);
+    public record OkResponse(string Message);
+    
+    public record ServerErrorResponse(IEnumerable<string>? Messages);
 
     public static void Map(IEndpointRouteBuilder app) => app
         .MapPut("/", Handle)
         .WithName(nameof(UpdateUser))
         .WithSummary("Create a new User");
 
-    private static async Task<Results<Ok<Response>, InternalServerError<Response>>> Handle([FromBody] Request request, [FromServices] UserService service,
+    private static async Task<Results<Ok<OkResponse>, InternalServerError<ServerErrorResponse>>> Handle([FromBody] Request request, [FromServices] UserService service,
         CancellationToken cancellationToken)
     {
         var result = await service.Update(request.User, cancellationToken);
-        var response = new Response(result);
 
-        return result.IsSuccess ? TypedResults.Ok(response) : TypedResults.InternalServerError(response);
+        return result.IsSuccess 
+            ? TypedResults.Ok(new OkResponse("Successfully updated")) 
+            : TypedResults.InternalServerError(new ServerErrorResponse(result.Messages));
     }
 }
