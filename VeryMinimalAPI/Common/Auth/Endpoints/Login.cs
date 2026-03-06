@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using VeryMinimalAPI.Common.API;
 using VeryMinimalAPI.Common.Auth.Services;
 
-namespace VeryMinimalAPI.Common.Auth.Endpoint;
+namespace VeryMinimalAPI.Common.Auth.Endpoints;
 
 public class Login : IEndpoint
 {

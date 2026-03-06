@@ -1,4 +1,4 @@
-using VeryMinimalAPI.Common.Auth.Endpoint;
+using VeryMinimalAPI.Common.Auth.Endpoints;
 using VeryMinimalAPI.Features.Endpoints.Todo;
 using VeryMinimalAPI.Features.Endpoints.User;
 
