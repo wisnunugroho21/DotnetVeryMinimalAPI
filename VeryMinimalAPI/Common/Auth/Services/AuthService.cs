@@ -26,6 +26,8 @@ public class AuthService(IOptions<SecurityOptions> options, AppDbContext db)
         {
             Expires = DateTime.UtcNow.AddDays(7),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+            Issuer = options.Value.JwtIssuer,
+            Audience = options.Value.JwtAudience,
             Claims = new Dictionary<string, object>() {
                 { JwtRegisteredClaimNames.Name, user?.Username ?? "" },
                 { JwtRegisteredClaimNames.Sub, user?.Username ?? "" }

@@ -37,11 +37,17 @@ public static class ApplicationService
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(opt =>
                 {
+                    opt.ClaimsIssuer = securityOptions.Value.JwtIssuer;
+                    opt.Audience = securityOptions.Value.JwtAudience;
+                    
                     opt.TokenValidationParameters = new TokenValidationParameters()
                     {
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(securityOptions.Value.JwtKey)),
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
+                        ValidIssuer = securityOptions.Value.JwtIssuer,
+                        ValidAudience = securityOptions.Value.JwtAudience,
+                        
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
                         ClockSkew = TimeSpan.Zero
