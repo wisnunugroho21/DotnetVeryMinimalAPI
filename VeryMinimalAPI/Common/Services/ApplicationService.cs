@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -9,6 +10,7 @@ using Serilog.Events;
 using VeryMinimalAPI.Common.Auth.Services;
 using VeryMinimalAPI.Common.Auth.Types;
 using VeryMinimalAPI.Data;
+using VeryMinimalAPI.Data.Types;
 using VeryMinimalAPI.Features.Services;
 
 namespace VeryMinimalAPI.Common.Services;
@@ -19,8 +21,40 @@ public static class ApplicationService
     {
         public void AddDatabase()
         {
-            builder.Services.AddDbContext<AppDbContext>(opt => 
-                opt.UseSqlServer(builder.Configuration.GetConnectionString("LocalDB")));
+            builder.Services
+                .AddDbContext<AppDbContext>(opt => 
+                    opt.UseSqlServer(builder.Configuration.GetConnectionString("LocalDB"))
+                        .UseSeeding((db, b) =>
+                        {
+                            var user = new User
+                            {
+                                Name = "Admin",
+                                Password = "admin",
+                                Username = "admin"
+                            };
+
+                            var hashPassword = (new PasswordHasher<User>()).HashPassword(user, user.Password);
+                            user.Password = hashPassword;
+
+                            db.Set<User>().Add(user);
+                            db.SaveChanges();
+                        })
+                        .UseAsyncSeeding(async (db, b, cancelToken) =>
+                        {
+                            var user = new User
+                            {
+                                Name = "Admin",
+                                Password = "admin",
+                                Username = "admin"
+                            };
+
+                            var hashPassword = (new PasswordHasher<User>()).HashPassword(user, user.Password);
+                            user.Password = hashPassword;
+
+                            await db.Set<User>().AddAsync(user, cancelToken);
+                            await db.SaveChangesAsync(cancelToken);
+                        })
+                    );
         }
 
         public void AddSecurity()
