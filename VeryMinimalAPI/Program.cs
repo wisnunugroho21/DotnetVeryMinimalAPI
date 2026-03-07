@@ -15,7 +15,11 @@ builder.AddApplicationService();
 builder.AddSecurity();
 builder.AddSerilog();
 
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
+
+app.MapHealthChecks("/");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
