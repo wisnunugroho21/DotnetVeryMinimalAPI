@@ -1,0 +1,21 @@
+﻿services:
+  web_api:
+    container_name: web_api_application
+    image: web_api
+    build:
+      context: .
+      dockerfile: VeryMinimalAPI/Dockerfile
+  sql_server:
+    container_name: sql_server
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: example_123
+    image: mcr.microsoft.com/mssql/server
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P example_123 -Q 'SELECT 1' || exit 1" ]
+      interval: 10s
+      retries: 10
+      start_period: 10s
+      timeout: 3s
+
